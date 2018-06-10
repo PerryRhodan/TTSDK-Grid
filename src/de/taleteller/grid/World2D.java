@@ -22,13 +22,14 @@ package de.taleteller.grid;
 
 public abstract class World2D<T_Tiledata, T_Tile extends Tile<T_Tiledata>> {
 
-	/** Create in extending classes! */
+	/** The array of the gerenic type needs to be created outside of here, 
+	 *  and is given to this class via the Initialize() method. */
 	protected T_Tile[][] tiles;
-	
+	/** Height of the world in number of tiles */
 	int height;
-	
+	/** Width of the world in number of tiles */
 	int width;
-	
+	/** The size of one individual tile. Assumes they are all the same size */
 	int tile_size;
 	
 	public World2D(int tilesize) {
