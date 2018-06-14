@@ -1,6 +1,6 @@
 # TTSDK-Grid
 
-This library contains a generic definition of a 2D grid as well as an implementation for a hex grid specifically. The following example will use the hex grid to show how to make use of it.
+This library contains a generic definition of a 2D grid as well as an implementation for a hex grid specifically. The following example will use the hex grid to show how to make use of it. It depends on TTSDK-Core.
 
 What needs to be done first is to come up with a class representing tile data, ie the your specifics of what each tile in your world contains. In this example I will assume this is merely an infrastucture value for now.
 
@@ -32,7 +32,10 @@ There is one more step to be done before the world is fully set up. The two dime
 
 ```java
 // create your world. You must give it
-// the size of one tile in pixels
+// the size of one tile in pixels.
+// The size is only really be used when
+// you use the TTSDK-Canvas to draw the
+// hex grid.
 Testworld world = new Testworld(64);
 		
 // create your tiles
