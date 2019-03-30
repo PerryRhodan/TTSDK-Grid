@@ -32,7 +32,9 @@ import de.taleteller.grid.drawstate.TileDrawStateMemberData;
 public abstract class Tile<T_Tiledata> extends TileDrawStateMember {
 	
 	/** Individual path generator for this tile. This way paths can 
-	 *  be calculated in parallel for different tiles. */
+	 *  be calculated in parallel for different tiles.
+	 *  TODO not really, as g and f values are saved in the tiles,
+	 *  soluation were needed for that. */
 	private AstarPathGenerator<T_Tiledata> pathgenerator = new AstarPathGenerator<>();
 	
 	/** x coordinate */
@@ -159,6 +161,15 @@ public abstract class Tile<T_Tiledata> extends TileDrawStateMember {
 	}
 	
 	/**
+	 * Returns true if the last calculated path
+	 * reached the target without breaking the max
+	 * cost limit.
+	 */
+	public boolean foundPath() {
+		return pathgenerator.didFindTarget();
+	}
+	
+	/**
 	 * Returns Eucledian distance in tiles.
 	 * Beware that this only works semi-optimal
 	 * for hex-tiles!
@@ -168,5 +179,30 @@ public abstract class Tile<T_Tiledata> extends TileDrawStateMember {
 	public double getEucledianDistanceTo(Tile<T_Tiledata> other) {
 		return Math.sqrt(Math.pow(other.x-this.x, 2)
 				+ Math.pow(other.y-this.y, 2));
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + x;
+		result = prime * result + y;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Tile other = (Tile) obj;
+		if (x != other.x)
+			return false;
+		if (y != other.y)
+			return false;
+		return true;
 	}
 }

@@ -42,6 +42,10 @@ class AstarPathGenerator<T> {
 	ArrayList<Tile<T>> path = new ArrayList<>();
 	int totalcost = 0;
 	
+	/** Flag to indicate whether or not the target was found.
+	 *  Will be false also if the total cost became too high. */
+	boolean found_target;
+	
 	/**
 	 * Calculates and returns the shortest path using given options. 
 	 * The start and target tiles must be part of the connected 
@@ -59,6 +63,7 @@ class AstarPathGenerator<T> {
 	 */
 	ArrayList<Tile<T>> getPath(Tile<T> start , Tile<T> target
 			, PathFinder_Options<T> options) {
+
 		// call astar algorithm to calculate the path
 		astar(start, target, options);
 		
@@ -77,7 +82,14 @@ class AstarPathGenerator<T> {
 	int getTotalCost() {
 		return totalcost;
 	}
-	
+
+	/** Returns whether or not the target was found.
+	 *  Will also be false if the total cost was higher
+	 *  then the limit specified in the options. */
+	public boolean didFindTarget() {
+		return found_target;
+	}
+
 	/**
 	 * Returns a list of Integers storing the cost of for each individual node. The list has
 	 * the same size as the last calculated path, and the values correspond to each other.
@@ -92,13 +104,16 @@ class AstarPathGenerator<T> {
 	}
 	
 	void reset() {
+		
 		for (Tile<T> tile : closedlist) {
 			tile.astar_g_value = 0;
 			tile.astar_f_value = 0;
+			tile.astar_predecessor = null;
 		}
 		for (Tile<T> tile : openlist) {
 			tile.astar_g_value = 0;
 			tile.astar_f_value = 0;
+			tile.astar_predecessor = null;
 		}
 		closedlist.clear();
 		openlist.clear();
@@ -113,12 +128,12 @@ class AstarPathGenerator<T> {
 			, PathFinder_Options<T> options) {
 		
 		// Initialisierung der Open List, die Closed List ist noch leer
-	    // (die Priorität bzw. der f Wert des Startknotens ist unerheblich)
+	    // (die PrioritÃ¤t bzw. der f Wert des Startknotens ist unerheblich)
 		openlist.add(start);
 		
 		// diese Schleife wird durchlaufen bis entweder
-	    // - die optimale Lösung gefunden wurde oder
-	    // - feststeht, dass keine Lösung existiert
+	    // - die optimale LÃ¶sung gefunden wurde oder
+	    // - feststeht, dass keine LÃ¶sung existiert
 		Tile<T> current = null;
 		while(openlist.size() >=  1) {
 			// Knoten mit dem geringsten f Wert aus der Open List entfernen
@@ -136,49 +151,54 @@ class AstarPathGenerator<T> {
 			expandNode(current, target, options);
 		}
 		
-		int j=0,k=0;	// try to detect and break loops 
+		int k=0;	// try to detect and break loops 
 		if(current != null) {
 			/** remember total cost */
 			totalcost = current.astar_g_value;
 			Tile<T> node = current;
-			while(node != null && k < 10) {
+			while(node != null && k < 50) {
 				//System.out.println("added to path " + node.toString());
 				path.add(node);
 				node = node.astar_predecessor;
-				
-				j++;
-				if(j%5 == 0)
-					k++;
+
+				k++;
 			}
 		}
+		
+		// were we successful?
+		found_target = true;
+		if(!path.contains(target))
+			found_target = false;
+		if(totalcost > options.getMaxTotalCost())
+			found_target = false;
 	}
 	
-	// überprüft alle Nachfolgeknoten und fügt sie der Open List hinzu, wenn entweder
+	// Ã¼berprÃ¼ft alle Nachfolgeknoten und fÃ¼gt sie der Open List hinzu, wenn entweder
 	// - der Nachfolgeknoten zum ersten Mal gefunden wird oder
 	// - ein besserer Weg zu diesem Knoten gefunden wird
 	private void expandNode(Tile<T> node, Tile<T> target, PathFinder_Options<T> options) {
 		//System.out.println("Expand node: " + node.toString());
 		for (Tile<T> neighbor : node.getNeighbors()) {
-			// wenn der Nachfolgeknoten bereits auf der Closed List ist – tue nichts
+			// wenn der Nachfolgeknoten bereits auf der Closed List ist Â– tue nichts
 			if(closedlist.contains(neighbor))
 				continue;
-			// g Wert für den neuen Weg berechnen: g Wert des Vorgängers plus
+			// g Wert fÃ¼r den neuen Weg berechnen: g Wert des VorgÃ¤ngers plus
 	        // die Kosten der gerade benutzten Kante
 			int tentative_g = node.astar_g_value + options.getCost(node, neighbor);
 			//System.out.println("neighbor: " + neighbor + " has " + tentative_g);
 			// wenn der Nachfolgeknoten bereits auf der Open List ist,
-	        // aber der neue Weg nicht besser ist als der alte – tue nichts
+	        // aber der neue Weg nicht besser ist als der alte Â– tue nichts
 			if(openlist.contains(neighbor) && tentative_g >= neighbor.astar_g_value)
 				continue;
 
 			if(tentative_g > options.getMaxTotalCost())
 				continue;
 
-			// Vorgängerzeiger setzen und g Wert merken
+			// VorgÃ¤ngerzeiger setzen und g Wert merken
 			neighbor.astar_predecessor = node;
 			neighbor.astar_g_value = tentative_g;
 			// f Wert des Knotens in der Open List aktualisieren
-	        // bzw. Knoten mit f Wert in die Open List einfügen
+	        // bzw. Knoten mit f Wert in die Open List einfÃ¼gen
 			int f = tentative_g + options.getEstimation(neighbor, target);
 			neighbor.astar_f_value = f;
 			if(!openlist.contains(neighbor))

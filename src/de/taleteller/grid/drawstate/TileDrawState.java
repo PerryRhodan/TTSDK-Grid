@@ -20,6 +20,7 @@ package de.taleteller.grid.drawstate;
 
 import java.util.ArrayList;
 
+import de.taleteller.animation.TileImageData;
 import de.taleteller.core.abstraction.IDed;
 
 
@@ -35,8 +36,8 @@ public class TileDrawState extends IDed {
 	/** list of members */
 	ArrayList<TileDrawStateMember> members;
 	
-	/** flag to use an image directly instead of using the values */
-	boolean useDirectImage;
+	/** image data to be drawn on given values */
+	TileImageData image_data;
 	
 	/** z value */
 	int z;
@@ -44,19 +45,27 @@ public class TileDrawState extends IDed {
 	//////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////
 
-	public TileDrawState(boolean active) {
+	public TileDrawState(TileImageData image_data
+			, boolean active) {
+		this.image_data = image_data;
 		this.activation_listeners = new ArrayList<>();
 		this.active = active;
 		this.members = new ArrayList<>();
 	}
 	
-	public TileDrawState(boolean active, int z) {
+	public TileDrawState(TileImageData image_data
+			, boolean active
+			, int z) {
+		this.image_data = image_data;
 		this.activation_listeners = new ArrayList<>();
 		this.active = active;
 		this.members = new ArrayList<>();
 	}
 	
-	public TileDrawState(boolean active, TileDrawStateActivationListener activationListener) {
+	public TileDrawState(TileImageData image_data
+			, boolean active
+			, TileDrawStateActivationListener activationListener) {
+		this.image_data = image_data;
 		this.activation_listeners = new ArrayList<>();
 		this.active = active;
 		this.members = new ArrayList<>();
@@ -64,60 +73,20 @@ public class TileDrawState extends IDed {
 		RegisterActivationListener(activationListener);
 	}
 	
-	public TileDrawState(boolean active, int z, TileDrawStateActivationListener activationListener) {
+	public TileDrawState(TileImageData image_data
+			, boolean active
+			, int z
+			, TileDrawStateActivationListener activationListener) {
+		this.image_data = image_data;
 		this.activation_listeners = new ArrayList<>();
 		this.active = active;
 		this.z = z;
 		this.members = new ArrayList<>();
-		RegisterActivationListener(activationListener);
-	}
-	
-	public TileDrawState(boolean active,
-			boolean useDirectImage) {
-		this.activation_listeners = new ArrayList<>();
-		this.active = active;
-		this.members = new ArrayList<>();
-		this.useDirectImage = useDirectImage;
-	}
-	
-	public TileDrawState(boolean active, int z,
-			boolean useDirectImage) {
-		this.activation_listeners = new ArrayList<>();
-		this.active = active;
-		this.z = z;
-		this.members = new ArrayList<>();
-		this.useDirectImage = useDirectImage;
-	}
-	
-	public TileDrawState(boolean active, TileDrawStateActivationListener activationListener,
-			boolean useDirectImage) {
-		this.activation_listeners = new ArrayList<>();
-		this.active = active;
-		this.members = new ArrayList<>();
-		this.useDirectImage = useDirectImage;
-		RegisterActivationListener(activationListener);
-	}
-	
-	public TileDrawState(boolean active, TileDrawStateActivationListener activationListener,
-			int z, boolean useDirectImage) {
-		this.activation_listeners = new ArrayList<>();
-		this.active = active;
-		this.z = z;
-		this.members = new ArrayList<>();
-		this.useDirectImage = useDirectImage;
 		RegisterActivationListener(activationListener);
 	}
 	
 	//////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////
-
-	public void setUseDirectImage(boolean useDirectImage) {
-		this.useDirectImage = useDirectImage;
-	}
-	
-	public boolean isUseDirectImage() {
-		return useDirectImage;
-	}
 
 	public boolean isActive() {
 		return active;
@@ -143,9 +112,9 @@ public class TileDrawState extends IDed {
 	 */
 	public void clearAllMembers() {
 		for (TileDrawStateMember member : members) {
-			member.drawstate_data.remove(this);
+			member.UnregisterFrom(this);
 		}
-		members.clear();
+		members.clear(); // <-- this should be redundant
 	}
 
 	/** Only package wide */
@@ -159,6 +128,14 @@ public class TileDrawState extends IDed {
 
 	public void RegisterActivationListener(TileDrawStateActivationListener listener) {
 		this.activation_listeners.add(listener);
+	}
+	
+	public TileImageData getImage_data() {
+		return image_data;
+	}
+
+	public void setImage_data(TileImageData image_data) {
+		this.image_data = image_data;
 	}
 	
 	//////////////////////////////////////////////////////////

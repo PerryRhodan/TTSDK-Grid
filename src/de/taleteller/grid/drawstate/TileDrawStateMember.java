@@ -21,6 +21,7 @@ package de.taleteller.grid.drawstate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Objects;
 
 
 
@@ -50,6 +51,21 @@ public abstract class TileDrawStateMember {
 				return 0;
 			}
 		});
+	}
+	
+	// only package wide
+	void UnregisterFrom(TileDrawState _state) {
+		TileDrawStateMemberData olddata = null;
+		for (TileDrawStateMemberData data : drawstate_data) {
+			if(data.state.equals(_state)) {
+				olddata = data;
+				break;
+			}
+		}
+		if(olddata != null)
+			drawstate_data.remove(olddata);
+		else 
+			drawstate_data.removeIf(Objects::isNull);
 	}
 	
 	/** Sets the values for the draw states assigned to this owner,
