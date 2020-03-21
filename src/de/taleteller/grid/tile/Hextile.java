@@ -139,13 +139,13 @@ public class Hextile<T_Tiledata> extends Tile<T_Tiledata> {
 
 	@Override
 	public int getPixelX(int tilewidth) {
-		int x_px = (int) (this.getX()/2.0 * tilewidth + this.getX()/2.0 * tilewidth/2.0);
+		int x_px = (int) (this.getX() * (64.0/74.0) * tilewidth);
 		return x_px;
 	}
 
 	@Override
 	public int getPixelY(int tileheight) {
-		int y_px = (int) (this.getY()/2.0 * tileheight + this.getY() * tileheight/2.0);
+		int y_px = (int) (this.getY() * tileheight);
 		if(this.getX() % 2 != 0) {
 			y_px += tileheight/2.0;
 		}
